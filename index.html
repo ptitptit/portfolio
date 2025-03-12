@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>포트폴리오</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.2/cdn.min.js" defer></script>
+    <style>
+        .slide-wrapper { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+        .slide { width: 100vw; height: 100vh; position: absolute; top: 0; left: 100%; display: flex; align-items: center; justify-content: center; text-align: center; color: white; background-size: cover; background-position: center; transition: transform 0.8s ease-in-out, opacity 0.8s ease-in-out; opacity: 0; }
+        .active { left: 0; opacity: 1; }
+        .nav-button { font-size: 2rem; color: #bbb; background: none; border: none; cursor: pointer; transition: color 0.3s ease; }
+        .nav-button:hover { color: #fff; }
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 flex justify-center items-center h-screen">
+    <div x-data="{
+        current: 0,
+        showTooltip: false,
+        hoveredTech: '',
+       projects: [
+    { title: '👩‍💻 자기소개', category: '', desc: '풀스택 개발자로 웹서비스, 자동화, AI 기반 솔루션을 개발합니다.', result: '다양한 기술을 활용한 실전 프로젝트 경험 보유', tech: [
+        { 
+            name: '🚀 지속 가능한 개발', 
+            desc: '빠르게 만드는 것도 중요하지만, 오래 유지할 수 있는 시스템을 만들도록 노력합니다. 단순한 기능 구현을 넘어, 장기적으로 효율적인 구조를 고민합니다.' 
+        }, 
+        { 
+            name: '🎮 게임 같은 사고방식', 
+            desc: '게임을 하듯이 전략을 세우고, 더 재미있는 방법을 찾아가는 과정이 즐겁습니다. 개발할 때도 같은 방식으로 접근하여 더 나은 결과를 만드는 걸 중요하게 생각합니다.' 
+        }, 
+        {  
+            name: '🛠 최소한의 유지보수', 
+            desc: '한 번 만들고 끝나는 것이 아니라, 관리할 필요 없이 자연스럽게 굴러가는 시스템을 만드는 걸 목표로 합니다. 유지보수를 줄이는 것이야말로 최고의 효율이라고 생각합니다.' 
+        },
+        { 
+            name: '📊 데이터 중심 사고', 
+            desc: '직접 데이터를 수집하고 분석하는 과정을 통해 최적의 선택을 찾는 것이 중요합니다.' 
+        },
+        { 
+            name: '🏃 꾸준함과 유연함', 
+            desc: '루틴을 유지하는 것이 중요하지만, 완벽함을 강요하지는 않습니다. 오랫동안 지속할 수 있도록 유연한 방식으로 접근하는 것이 더 중요하다고 생각합니다.' 
+        },
+        { 
+            name: '🤓 다양한 분야에 관심', 
+            desc: 'AI, 금융, 게임 개발 등 여러 분야에 관심이 많고, 흥미로운 것이 있으면 직접 시도해보는 편입니다. 다양한 경험을 통해 더 나은 해결책을 찾을 수 있다고 믿습니다.' 
+        }
+    ], bg: 'url(image/climbing.png)' },
+    { title: '🏢 WMS SaaS 솔루션 전환', category: '회사 프로젝트', desc: '기존 넥사크로 기반 WMS를 Vue3와 Spring Boot 기반 SaaS로 전환.', result: 'SaaS화를 통해 유지보수 비용 절감 및 확장성 확보', tech: [
+            { name: 'Vue3', desc: 'WMS UI 재설계 및 API 연동, 대규모 SPA 적용, 동적 테이블 및 데이터 바인딩 최적화' }, 
+            { name: 'Spring Boot', desc: '출고/센터 마스터 관리 API 개발' }, 
+            { name: 'MariaDB', desc: '재고 및 주문 데이터 저장, 수정 및 인덱싱 최적화' }, 
+        ], bg: 'url(image/order.png)' },
+    { title: '🏢 쇼핑몰 통합 솔루션', category: '회사 프로젝트', desc: '네이버커머스, 쿠팡 API를 활용하여 다중 쇼핑몰 주문을 통합 관리하는 솔루션 개발.', result: '주문 처리 속도 30% 향상 및 업무 자동화', tech: [
+            { name: 'Vue3', desc: '쇼핑몰 API 데이터 시각화 및 대시보드 구축' }, 
+            { name: 'Spring Boot', desc: '쿠팡/네이버 API 연동 및 비동기 처리, 다중 쇼핑몰 주문 처리 로직 개발' }, 
+            { name: 'MariaDB', desc: '주문·재고 데이터 관리 및 정규화' }
+        ], bg: 'url(image/onas.png)' },
+    { title: '🏢 여행사 여권인식 시스템', category: '회사 프로젝트', desc: 'OCR 기술 활용을 위해  패스포트 문서를 자동 업로드 및 인식하는 시스템 구축.', result: '문서 처리 자동화로 업무 효율성 증가', tech: [
+            { name: 'Vue3', desc: 'OCR 대상 문서 업로드 UI 및 입력 필드 검증, 미리보기 기능 개발' }, 
+            { name: 'Spring Boot', desc: '메뉴 개발 + OCR API 연동 및 결과 데이터 변환 및 JWT 인증, OAuth2 보안 적용' }, 
+            { name: 'MariaDB', desc: 'OCR 데이터 저장 및 검색 최적화' }
+        ], bg: 'url(image/rnbd.png)' },
+    { title: '🛠 자동 트레이딩 시스템', category: '개인 프로젝트', desc: 'Bybit API를 이용한 자동 스캘핑 트레이딩 시스템 구축.', result: '자동화된 매매 프로세스를 통한 실시간 거래 최적화', tech: [
+            { name: 'Python', desc: ' Bybit API를 활용한 WebSocket 기반 트레이딩 시스템 구축, 백테스팅 기능 구현' }, 
+            { name: 'FastAPI', desc: '트레이딩 백엔드 서비스 개발, 실시간 매매 데이터 분석' }, 
+            { name: 'MariaDB', desc: '트레이딩 데이터 저장 및 지표 분석' }
+        ], bg: 'url(image/bybit.jfif)' },
+    { title: '🛠 웹 블로그 자동화 시스템', category: '개인 프로젝트', desc: 'Selenium과 ChatGPT API를 활용한 자동 블로그 포스팅 시스템 구축.', result: '콘텐츠 자동화 및 포스팅 관리 최적화', tech: [
+            { name: 'Python', desc: 'Selenium을 활용한 웹 크롤링 및 데이터 정제, 키워드 기반 콘텐츠 생성 자동화' }, 
+            { name: 'FastAPI', desc: '블로그 포스팅 자동화 API 설계 및 ChatGPT 연동' },
+	    { name: 'MariaDB', desc: '데이터 기반 포스팅 주제 관리 시스템 설계' },
+            { name: 'AWS', desc: 'EC2 및 RDS 기반 배포, 로드 밸런싱 및 자동화 스케줄링 적용' }
+        ], bg: 'url(image/blog.png)' },
+    { 
+    title: '🎮 Unity 3D 게임 프로젝트 (클론)', 
+    category: '미니 프로젝트', 
+    desc: 'Unity를 활용한 3D 플랫폼 게임 및 플래피버드 클론 개발.', 
+    result: '플랫폼 게임 개발 경험 확보 및 클론 프로젝트 분석 역량 강화', 
+    tech: [
+        { name: 'Unity', desc: 'NavMesh AI 기반 NPC 이동 구현, 3D 물리 엔진 적용' }, 
+        { name: 'C#', desc: '게임 로직 및 애니메이션 제어 스크립팅, 게임 이벤트 및 점수 시스템 구현' }
+    ], 
+    bg: 'url(image/unity.png)' 
+}
+
+],
+        showTechTooltip(techDesc) {
+            this.hoveredTech = techDesc;
+            this.showTooltip = true;
+        },
+        hideTechTooltip() {
+            this.showTooltip = false;
+        }
+    }" x-init="$nextTick(() => { document.querySelectorAll('.slide')[0].classList.add('active'); })" class="relative w-screen h-screen overflow-hidden">
+        <div class="slide-wrapper">
+            <template x-for="(project, index) in projects" :key="index">
+                <div class="slide" x-bind:class="{ 'active': index === current }" x-bind:style="'background-image: ' + project.bg">
+                    <div class="content-wrapper flex w-full h-full bg-black bg-opacity-50 p-8 sm:p-10 justify-center items-center">
+                        <div class="w-1/2 flex flex-col justify-center text-center">
+                            <h1 x-text="project.title" class="text-4xl sm:text-6xl font-bold"></h1>
+                            <p x-text="project.category" class="text-md sm:text-lg mt-2 text-gray-300"></p>
+                            <p x-text="project.desc" class="text-lg sm:text-xl mt-4"></p>
+                            <p x-text="project.result" class="text-md sm-text-lg mt-4 text-gray-300"></p>
+<div x-data="{ selectedTech: null }" class="flex flex-wrap mt-4 space-x-2 justify-center">
+    <template x-for="tech in project.tech" :key="tech.name">
+        <div class="relative">
+            <button class="bg-gray-700 px-3 py-1 rounded-lg text-white text-sm"
+                @click="selectedTech = (selectedTech === tech.name ? null : tech.name)">
+                <span x-text="tech.name"></span>
+            </button>
+            
+            <!-- 상세 내용 표시 -->
+            <div class="absolute left-1/2 -translate-x-1/2 mt-2 w-64 bg-gray-800 text-white p-2 rounded-lg shadow-lg"
+                x-show="selectedTech === tech.name"
+                x-transition.opacity>
+                <span x-text="tech.desc"></span>
+            </div>
+        </div>
+    </template>
+</div>
+
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex space-x-6">
+            <button @click="current = (current - 1 + projects.length) % projects.length" class="nav-button">&lt;</button>
+            <button @click="current = (current + 1) % projects.length" class="nav-button">&gt;</button>
+        </div>
+    </div>
+</body>
+</html>
+
